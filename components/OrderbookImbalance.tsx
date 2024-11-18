@@ -2,9 +2,11 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 
 export default function OrderbookImbalance({ imbalance }) {
   return (
-    <Card className="bg-gray-800 border-green-500 shadow-lg opacity-95 w-[550px] mr-14">
+    <Card className="bg-gray-800 border-green-500 shadow-lg opacity-95 w-full">
       <CardHeader>
-        <CardTitle className="text-green-500">Orderbook Imbalance</CardTitle>
+        <CardTitle className="text-green-500 text-lg sm:text-xl">
+          Orderbook Imbalance
+        </CardTitle>
       </CardHeader>
       <CardContent>
         <div className="h-[200px] flex flex-col justify-center">
@@ -14,7 +16,7 @@ export default function OrderbookImbalance({ imbalance }) {
               style={{ width: `${(imbalance + 1) * 50}%` }}
             ></div>
           </div>
-          <div className="flex justify-between text-sm text-gray-400">
+          <div className="flex justify-between text-xs sm:text-sm text-gray-400">
             <span>Sell Pressure</span>
             <span>Neutral</span>
             <span>Buy Pressure</span>

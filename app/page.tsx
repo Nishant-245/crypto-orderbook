@@ -9,12 +9,6 @@ import MarketDepth from "@/components/MarketDepth";
 import OrderBook from "@/components/OrderBook";
 import { tradingPairs } from "@/constants/trading";
 
-// export const tradingPairs = [
-//   { symbol: "BTCUSDT", name: "BTC-USD" },
-//   { symbol: "ETHUSDT", name: "ETH-USD" },
-//   { symbol: "XRPUSDT", name: "XRP-USD" },
-// ]
-
 export default function Home() {
   const [orderBookData, setOrderBookData] = useState({ bids: [], asks: [] });
   const [spreadHistory, setSpreadHistory] = useState([]);
@@ -115,7 +109,7 @@ export default function Home() {
   return (
     <VantaBackground>
       <div className="min-h-screen">
-        <div className="max-w-7xl mx-auto space-y-12 pt-16">
+        <div className="max-w-7xl mx-auto space-y-8 px-4 sm:px-6 lg:px-8 py-8 lg:py-16">
           <Header selectedPair={selectedPair} onPairChange={handlePairChange} />
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
             <SpreadIndicator loading={loading} spreadHistory={spreadHistory} />

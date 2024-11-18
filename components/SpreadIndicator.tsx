@@ -12,16 +12,18 @@ import { Spinner } from "@/components/ui/spinner";
 
 export default function SpreadIndicator({ loading, spreadHistory }) {
   return (
-    <Card className="bg-gray-800 border-green-500 shadow-lg opacity-95 w-[550px] ml-14">
+    <Card className="bg-gray-800 border-green-500 shadow-lg opacity-95 w-full">
       <CardHeader>
-        <CardTitle className="text-green-500 flex items-center">
+        <CardTitle className="text-green-500 flex items-center text-lg sm:text-xl">
           <ArrowUpDown className="mr-2" />
           Spread Indicator
         </CardTitle>
       </CardHeader>
       <CardContent>
         {loading ? (
-          <Spinner />
+          <div className="flex justify-center items-center h-[200px]">
+            <Spinner />
+          </div>
         ) : (
           <ResponsiveContainer width="100%" height={200}>
             <AreaChart data={spreadHistory}>

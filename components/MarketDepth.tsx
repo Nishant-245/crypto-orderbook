@@ -38,14 +38,18 @@ export default function MarketDepth({
 
   return (
     <Card
-      className={`bg-gray-800 border-green-500 shadow-lg opacity-95 ml-14 mr-14 ${className}`}
+      className={`bg-gray-800 border-green-500 shadow-lg opacity-95 w-full ${className}`}
     >
       <CardHeader>
-        <CardTitle className="text-green-500">Market Depth</CardTitle>
+        <CardTitle className="text-green-500 text-lg sm:text-xl">
+          Market Depth
+        </CardTitle>
       </CardHeader>
       <CardContent>
         {loading ? (
-          <Spinner />
+          <div className="flex justify-center items-center h-[300px]">
+            <Spinner />
+          </div>
         ) : (
           <ResponsiveContainer width="100%" height={300}>
             <AreaChart
