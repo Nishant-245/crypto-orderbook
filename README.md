@@ -35,8 +35,7 @@ Blockchain Exchange is a Next.js application that provides real-time cryptocurre
 1. Clone the repository:
 
    ```
-   git clone https://github.com/yourusername/blockchain-exchange.git
-   cd blockchain-exchange
+   git clone [https://github.com/Nishant-245/crypto-orderbook]
    ```
 
 2. Install the dependencies:
