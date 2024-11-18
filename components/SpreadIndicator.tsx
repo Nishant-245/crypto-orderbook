@@ -10,7 +10,20 @@ import {
 import { ArrowUpDown } from "lucide-react";
 import { Spinner } from "@/components/ui/spinner";
 
-export default function SpreadIndicator({ loading, spreadHistory }) {
+interface SpreadHistoryEntry {
+  time: number;
+  spread: number;
+}
+
+interface SpreadIndicatorProps {
+  loading: boolean;
+  spreadHistory: SpreadHistoryEntry[];
+}
+
+export default function SpreadIndicator({
+  loading,
+  spreadHistory,
+}: SpreadIndicatorProps) {
   return (
     <Card className="bg-gray-800 border-green-500 shadow-lg opacity-95 w-full">
       <CardHeader>
@@ -29,14 +42,14 @@ export default function SpreadIndicator({ loading, spreadHistory }) {
             <AreaChart data={spreadHistory}>
               <XAxis
                 dataKey="time"
-                tickFormatter={(unixTime) =>
+                tickFormatter={(unixTime: number) =>
                   new Date(unixTime).toLocaleTimeString()
                 }
                 stroke="#22c55e"
               />
               <YAxis stroke="#22c55e" />
               <Tooltip
-                labelFormatter={(unixTime) =>
+                labelFormatter={(unixTime: number) =>
                   new Date(unixTime).toLocaleTimeString()
                 }
                 contentStyle={{

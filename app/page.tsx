@@ -7,15 +7,37 @@ import SpreadIndicator from "@/components/SpreadIndicator";
 import OrderbookImbalance from "@/components/OrderbookImbalance";
 import MarketDepth from "@/components/MarketDepth";
 import OrderBook from "@/components/OrderBook";
-import { tradingPairs } from "@/constants/trading";
+import { tradingPairs, TradingPair } from "@/constants/trading";
+
+interface OrderBookEntry {
+  price: number;
+  amount: number;
+  total: number;
+  change: number;
+}
+
+interface OrderBookData {
+  bids: OrderBookEntry[];
+  asks: OrderBookEntry[];
+}
+
+interface SpreadHistoryEntry {
+  time: number;
+  spread: number;
+}
 
 export default function Home() {
-  const [orderBookData, setOrderBookData] = useState({ bids: [], asks: [] });
-  const [spreadHistory, setSpreadHistory] = useState([]);
-  const [imbalance, setImbalance] = useState(0);
-  const [selectedPair, setSelectedPair] = useState(tradingPairs[0]);
-  const [ws, setWs] = useState(null);
-  const [loading, setLoading] = useState(true);
+  const [orderBookData, setOrderBookData] = useState<OrderBookData>({
+    bids: [],
+    asks: [],
+  });
+  const [spreadHistory, setSpreadHistory] = useState<SpreadHistoryEntry[]>([]);
+  const [imbalance, setImbalance] = useState<number>(0);
+  const [selectedPair, setSelectedPair] = useState<TradingPair>(
+    tradingPairs[0]
+  );
+  const [ws, setWs] = useState<WebSocket | null>(null);
+  const [loading, setLoading] = useState<boolean>(true);
 
   useEffect(() => {
     if (ws) {
@@ -29,10 +51,12 @@ export default function Home() {
 
     newWs.onopen = () => setLoading(false);
 
-    newWs.onmessage = (event) => {
+    newWs.onmessage = (event: MessageEvent) => {
       const data = JSON.parse(event.data);
 
-      const processPriceLevel = (level) => {
+      const processPriceLevel = (
+        level: [string, string] | { price: string; amount: string }
+      ): { price: number; amount: number } => {
         return Array.isArray(level)
           ? { price: parseFloat(level[0]), amount: parseFloat(level[1]) }
           : {
@@ -41,7 +65,9 @@ export default function Home() {
             };
       };
 
-      const processOrders = (orders) => {
+      const processOrders = (
+        orders: any
+      ): { price: number; amount: number }[] => {
         return Array.isArray(orders)
           ? orders.map(processPriceLevel)
           : typeof orders === "object" && orders !== null
@@ -100,10 +126,12 @@ export default function Home() {
     };
   }, [selectedPair]);
 
-  const handlePairChange = (value) => {
+  const handlePairChange = (value: string) => {
     const newPair = tradingPairs.find((pair) => pair.symbol === value);
-    setSelectedPair(newPair);
-    setLoading(true);
+    if (newPair) {
+      setSelectedPair(newPair);
+      setLoading(true);
+    }
   };
 
   return (

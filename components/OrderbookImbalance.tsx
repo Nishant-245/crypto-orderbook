@@ -1,6 +1,12 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 
-export default function OrderbookImbalance({ imbalance }) {
+interface OrderbookImbalanceProps {
+  imbalance: number;
+}
+
+export default function OrderbookImbalance({
+  imbalance,
+}: OrderbookImbalanceProps) {
   return (
     <Card className="bg-gray-800 border-green-500 shadow-lg opacity-95 w-full">
       <CardHeader>

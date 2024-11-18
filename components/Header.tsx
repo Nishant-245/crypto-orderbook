@@ -5,9 +5,14 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { tradingPairs } from "@/constants/trading";
+import { tradingPairs, TradingPair } from "@/constants/trading";
 
-export default function Header({ selectedPair, onPairChange }) {
+interface HeaderProps {
+  selectedPair: TradingPair;
+  onPairChange: (value: string) => void;
+}
+
+export default function Header({ selectedPair, onPairChange }: HeaderProps) {
   return (
     <header className="text-center space-y-4">
       <h1 className="text-3xl sm:text-4xl md:text-5xl font-bold text-green-500">

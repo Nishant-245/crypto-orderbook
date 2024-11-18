@@ -9,7 +9,29 @@ import {
 } from "@/components/ui/table";
 import { Spinner } from "@/components/ui/spinner";
 
-export default function OrderBook({ loading, orderBookData, className = "" }) {
+interface OrderBookEntry {
+  price: number;
+  amount: number;
+  total: number;
+  change: number;
+}
+
+interface OrderBookData {
+  bids: OrderBookEntry[];
+  asks: OrderBookEntry[];
+}
+
+interface OrderBookProps {
+  loading: boolean;
+  orderBookData: OrderBookData;
+  className?: string;
+}
+
+export default function OrderBook({
+  loading,
+  orderBookData,
+  className = "",
+}: OrderBookProps) {
   return (
     <Card
       className={`bg-gray-800 border-green-500 shadow-lg opacity-95 w-full ${className}`}

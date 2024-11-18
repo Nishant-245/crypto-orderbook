@@ -9,12 +9,33 @@ import {
 } from "recharts";
 import { Spinner } from "@/components/ui/spinner";
 
+interface OrderBookEntry {
+  price: number;
+  amount: number;
+  total: number;
+  change: number;
+}
+
+interface OrderBookData {
+  bids: OrderBookEntry[];
+  asks: OrderBookEntry[];
+}
+
+interface MarketDepthProps {
+  loading: boolean;
+  orderBookData: OrderBookData;
+  className?: string;
+}
+
 export default function MarketDepth({
   loading,
   orderBookData,
   className = "",
-}) {
-  const processMarketDepthData = (bids, asks) => {
+}: MarketDepthProps) {
+  const processMarketDepthData = (
+    bids: OrderBookEntry[],
+    asks: OrderBookEntry[]
+  ) => {
     let bidTotal = 0;
     let askTotal = 0;
 
@@ -63,11 +84,11 @@ export default function MarketDepth({
                 stroke="#22c55e"
                 domain={["dataMin", "dataMax"]}
                 type="number"
-                tickFormatter={(value) => value.toFixed(2)}
+                tickFormatter={(value: number) => value.toFixed(2)}
               />
               <YAxis
                 stroke="#22c55e"
-                tickFormatter={(value) => value.toFixed(2)}
+                tickFormatter={(value: number) => value.toFixed(2)}
               />
               <Tooltip
                 contentStyle={{
@@ -76,7 +97,7 @@ export default function MarketDepth({
                   color: "#22c55e",
                 }}
                 itemStyle={{ color: "#FFD700" }}
-                formatter={(value, name, props) => [
+                formatter={(value: number, name: string, props: any) => [
                   value.toFixed(5),
                   props.payload.type === "bid" ? "Bid Total" : "Ask Total",
                 ]}
