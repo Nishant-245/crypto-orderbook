@@ -1,3 +1,5 @@
+"use client";
+
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import {
   Area,
@@ -13,7 +15,12 @@ interface OrderBookEntry {
   price: number;
   amount: number;
   total: number;
-  change: number;
+}
+
+interface ProcessedOrderBookEntry {
+  price: number;
+  total: number;
+  type: "bid" | "ask";
 }
 
 interface OrderBookData {
@@ -35,11 +42,11 @@ export default function MarketDepth({
   const processMarketDepthData = (
     bids: OrderBookEntry[],
     asks: OrderBookEntry[]
-  ) => {
+  ): ProcessedOrderBookEntry[] => {
     let bidTotal = 0;
     let askTotal = 0;
 
-    const processedBids = bids
+    const processedBids: ProcessedOrderBookEntry[] = bids
       .sort((a, b) => b.price - a.price)
       .map((bid) => {
         bidTotal += bid.amount;
@@ -47,7 +54,7 @@ export default function MarketDepth({
       })
       .reverse();
 
-    const processedAsks = asks
+    const processedAsks: ProcessedOrderBookEntry[] = asks
       .sort((a, b) => a.price - b.price)
       .map((ask) => {
         askTotal += ask.amount;
@@ -97,7 +104,11 @@ export default function MarketDepth({
                   color: "#22c55e",
                 }}
                 itemStyle={{ color: "#FFD700" }}
-                formatter={(value: number, name: string, props: any) => [
+                formatter={(
+                  value: number,
+                  name: string,
+                  props: { payload: ProcessedOrderBookEntry }
+                ) => [
                   value.toFixed(5),
                   props.payload.type === "bid" ? "Bid Total" : "Ask Total",
                 ]}
@@ -108,9 +119,12 @@ export default function MarketDepth({
                 stroke="#22c55e"
                 fill="url(#bidGradient)"
                 fillOpacity={0.5}
-                data={orderBookData.bids}
                 name="Bid"
                 isAnimationActive={false}
+                data={processMarketDepthData(
+                  orderBookData.bids,
+                  orderBookData.asks
+                ).filter((entry) => entry.type === "bid")}
               />
               <Area
                 type="stepAfter"
@@ -120,7 +134,10 @@ export default function MarketDepth({
                 fillOpacity={0.5}
                 name="Ask"
                 isAnimationActive={false}
-                data={orderBookData.asks}
+                data={processMarketDepthData(
+                  orderBookData.bids,
+                  orderBookData.asks
+                ).filter((entry) => entry.type === "ask")}
               />
               <defs>
                 <linearGradient id="bidGradient" x1="0" y1="0" x2="0" y2="1">

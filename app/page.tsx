@@ -9,18 +9,21 @@ import MarketDepth from "@/components/MarketDepth";
 import OrderBook from "@/components/OrderBook";
 import { tradingPairs, TradingPair } from "@/constants/trading";
 
+// Interface for an individual order book entry
 interface OrderBookEntry {
   price: number;
   amount: number;
-  total: number;
-  change: number;
+  total?: number; // Marking as optional for entries before calculation
+  change?: number; // Marking as optional for entries before calculation
 }
 
+// Interface for the order book data
 interface OrderBookData {
   bids: OrderBookEntry[];
   asks: OrderBookEntry[];
 }
 
+// Interface for spread history entry
 interface SpreadHistoryEntry {
   time: number;
   spread: number;
@@ -40,6 +43,7 @@ export default function Home() {
   const [loading, setLoading] = useState<boolean>(true);
 
   useEffect(() => {
+    // Close existing WebSocket if any
     if (ws) {
       ws.close();
     }
@@ -52,48 +56,51 @@ export default function Home() {
     newWs.onopen = () => setLoading(false);
 
     newWs.onmessage = (event: MessageEvent) => {
-      const data = JSON.parse(event.data);
+      try {
+        const data = JSON.parse(event.data);
 
-      const processPriceLevel = (
-        level: [string, string] | { price: string; amount: string }
-      ): { price: number; amount: number } => {
-        return Array.isArray(level)
-          ? { price: parseFloat(level[0]), amount: parseFloat(level[1]) }
-          : {
-              price: parseFloat(level.price),
-              amount: parseFloat(level.amount),
+        const processPriceLevel = (
+          level: [string, string] | { price: string; amount: string }
+        ): { price: number; amount: number } => {
+          if (Array.isArray(level)) {
+            return {
+              price: parseFloat(level[0]),
+              amount: parseFloat(level[1]),
             };
-      };
+          }
+          return {
+            price: parseFloat(level.price),
+            amount: parseFloat(level.amount),
+          };
+        };
 
-      const processOrders = (
-        orders: any
-      ): { price: number; amount: number }[] => {
-        return Array.isArray(orders)
-          ? orders.map(processPriceLevel)
-          : typeof orders === "object" && orders !== null
-          ? Object.entries(orders).map(([price, amount]) => ({
-              price: parseFloat(price),
-              amount: parseFloat(amount),
-            }))
-          : [];
-      };
+        const processOrders = (
+          orders: [string, string][] | Record<string, string>
+        ): { price: number; amount: number }[] => {
+          if (Array.isArray(orders)) {
+            return orders.map(processPriceLevel);
+          }
+          return Object.entries(orders).map(([price, amount]) => ({
+            price: parseFloat(price),
+            amount: parseFloat(amount),
+          }));
+        };
 
-      const bids = processOrders(data.bids);
-      const asks = processOrders(data.asks);
+        const bids = processOrders(data.bids || []);
+        const asks = processOrders(data.asks || []);
 
-      setOrderBookData((prevData) => {
-        const newBids = bids.slice(0, 10).map((bid, index) => ({
-          ...bid,
-          total: bids.slice(0, index + 1).reduce((sum, b) => sum + b.amount, 0),
-          change: prevData.bids[index]
-            ? bid.amount - prevData.bids[index].amount
-            : 0,
-        }));
+        setOrderBookData((prevData) => {
+          const newBids = bids.slice(0, 10).map((bid, index) => ({
+            ...bid,
+            total: bids
+              .slice(0, index + 1)
+              .reduce((sum, b) => sum + b.amount, 0),
+            change: prevData.bids[index]
+              ? bid.amount - prevData.bids[index].amount
+              : 0,
+          }));
 
-        const newAsks = asks
-          .slice(0, 10)
-          .reverse()
-          .map((ask, index) => ({
+          const newAsks = asks.slice(0, 10).map((ask, index) => ({
             ...ask,
             total: asks
               .slice(0, index + 1)
@@ -103,23 +110,28 @@ export default function Home() {
               : 0,
           }));
 
-        return { bids: newBids, asks: newAsks };
-      });
+          return { bids: newBids, asks: newAsks };
+        });
 
-      const bestBid = bids.length > 0 ? bids[0].price : 0;
-      const bestAsk = asks.length > 0 ? asks[0].price : 0;
-      const spread = bestAsk - bestBid;
-      setSpreadHistory((prev) => [
-        ...prev.slice(-59),
-        { time: new Date().getTime(), spread },
-      ]);
+        const bestBid = bids.length > 0 ? bids[0].price : 0;
+        const bestAsk = asks.length > 0 ? asks[0].price : 0;
+        const spread = bestAsk - bestBid;
 
-      const bidVolume = bids.reduce((sum, bid) => sum + bid.amount, 0);
-      const askVolume = asks.reduce((sum, ask) => sum + ask.amount, 0);
-      setImbalance((bidVolume - askVolume) / (bidVolume + askVolume));
+        setSpreadHistory((prev) => [
+          ...prev.slice(-59),
+          { time: Date.now(), spread },
+        ]);
+
+        const bidVolume = bids.reduce((sum, bid) => sum + bid.amount, 0);
+        const askVolume = asks.reduce((sum, ask) => sum + ask.amount, 0);
+        setImbalance((bidVolume - askVolume) / (bidVolume + askVolume));
+      } catch (error) {
+        console.error("Error processing WebSocket data:", error);
+      }
     };
 
     return () => {
+      // Close WebSocket on cleanup
       if (newWs) {
         newWs.close();
       }
